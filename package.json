@@ -9,6 +9,8 @@
 		"build": "nest build",
 		"check": "biome check . && tsc --noEmit",
 		"coverage": "vitest run --coverage",
+		"docker:start": "docker compose -f .docker/docker-compose.yml up --build -d",
+		"docker:stop": "docker compose -f .docker/docker-compose.yml down --volumes",
 		"format": "biome format --write .",
 		"prepare": "husky",
 		"start": "nest start",
