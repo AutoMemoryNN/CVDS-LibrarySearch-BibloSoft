@@ -21,6 +21,9 @@
 			"quoteStyle": "single",
 			"jsxQuoteStyle": "single",
 			"semicolons": "always"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
 		}
 	},
 	"json": {
