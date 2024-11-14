@@ -46,7 +46,8 @@
 				"noImplicitBoolean": "error",
 				"useConsistentArrayType": "error",
 				"useBlockStatements": "error",
-				"useNamingConvention": "error"
+				"useNamingConvention": "error",
+				"useImportType": "off"
 			},
 			"a11y": {
 				"all": true
@@ -113,6 +114,9 @@
 				"noArrayIndexKey": "error",
 				"noExplicitAny": "error",
 				"useAwait": "error"
+			},
+			"nursery": {
+				"useExplicitType": "error"
 			}
 		}
 	}
