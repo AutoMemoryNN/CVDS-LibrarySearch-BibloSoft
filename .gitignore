@@ -49,4 +49,3 @@ yarn-error.log
 build/config\.gypi
 
 .npmrc
-pnpm-lock.yaml
