@@ -1,19 +1,32 @@
-import { HealthController } from '@health/health.controller';
+import type { INestApplication } from '@nestjs/common';
+
+import { AppModule } from '@app/app.module';
 import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { spec } from 'pactum';
+import { afterAll, beforeAll, describe, it } from 'vitest';
 
 /**
  * Test suite for the HealthController
  */
 describe('HealthController', () => {
-	let healthController: HealthController;
+	let app: INestApplication;
+	const port = 7357;
+	const endpoint = `http://localhost:${port}`;
+	const timeLimit = 50;
 
-	beforeEach(async () => {
-		const app: TestingModule = await Test.createTestingModule({
-			controllers: [HealthController],
+	beforeAll(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			imports: [AppModule],
 		}).compile();
 
-		healthController = app.get<HealthController>(HealthController);
+		app = module.createNestApplication();
+
+		await app.init();
+		await app.listen(port);
+	});
+
+	afterAll(async () => {
+		await app.close();
 	});
 
 	/**
@@ -23,10 +36,14 @@ describe('HealthController', () => {
 		/**
 		 * Test if the getHealth method returns the correct message
 		 */
-		it('should return "Server is up and running"', () => {
-			expect(healthController.getHealth()).toEqual({
-				message: 'Server is up and running',
-			});
+		it('should return "Server is up and running"', async () => {
+			const expectedBody = { message: 'Server is up and running' };
+
+			await spec()
+				.get(`${endpoint}/health`)
+				.expectResponseTime(timeLimit)
+				.expectJson(expectedBody)
+				.expectStatus(200);
 		});
 	});
 
@@ -37,10 +54,14 @@ describe('HealthController', () => {
 		/**
 		 * Test if the getPing method returns the correct message
 		 */
-		it('should return "pong"', () => {
-			expect(healthController.getPing()).toEqual({
-				message: 'pong',
-			});
+		it('should return "pong"', async () => {
+			const expectedBody = { message: 'pong' };
+
+			await spec()
+				.get(`${endpoint}/health/ping`)
+				.expectResponseTime(timeLimit)
+				.expectJson(expectedBody)
+				.expectStatus(200);
 		});
 	});
 });
