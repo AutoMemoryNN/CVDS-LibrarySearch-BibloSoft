@@ -72,3 +72,16 @@ export class AppException<T> extends HttpException {
 		return Object.keys(this.errors).length > 0;
 	}
 }
+
+/**
+ * Exception for handling unknown server errors.
+ *
+ * This exception is used to handle unknown server errors. It extends the
+ * `HttpException` class and sets the status code to 500 (Internal Server Error).
+ * It is used when an unknown error occurs in the server.
+ */
+export class AppUnknownException extends HttpException {
+	constructor() {
+		super('Unknown server error', HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+}
