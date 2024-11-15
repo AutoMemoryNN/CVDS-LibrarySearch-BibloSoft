@@ -1,3 +1,5 @@
+import type { Request } from 'express';
+
 /**
  * Represents a mapping of errors for each property of a given type `T`.
  * Each key corresponds to a property of `T`, and the value is a string
@@ -31,3 +33,25 @@ export type Errors<T> = Partial<Record<keyof T, string>>;
 export type ControllerResponse<T = null> = T extends null
 	? { message: string }
 	: { data: T; message?: string };
+
+/**
+ * Represents the payload of a JSON Web Token (JWT).
+ *
+ * @property {string} username - The username of the user.
+ */
+export type JwtPayload = {
+	username: string;
+};
+
+/**
+ * Represents a user session.
+ */
+export type Session = JwtPayload & {
+	iat: number;
+	exp: number;
+};
+
+/**
+ * Represents a request with a session.
+ */
+export type RequestWithSession = Request & { session: Session };

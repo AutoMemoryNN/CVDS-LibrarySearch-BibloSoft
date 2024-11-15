@@ -22,7 +22,7 @@ export class AppException<T> extends HttpException {
 	 * @param statusCode - The status code of the exception.
 	 */
 	constructor(errors: Errors<T>, statusCode: number) {
-		super({ errors }, statusCode);
+		super({ statusCode, errors }, statusCode);
 		this.errors = errors;
 	}
 
