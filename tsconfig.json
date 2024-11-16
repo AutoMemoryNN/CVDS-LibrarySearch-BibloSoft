@@ -22,6 +22,7 @@
 			"@health/*": ["src/health/*"],
 			"@auth/*": ["src/auth/*"],
 			"@database/*": ["src/database/*"],
+			"@config/*": ["src/config/*"],
 			"@types": ["src/types"]
 		}
 	},
