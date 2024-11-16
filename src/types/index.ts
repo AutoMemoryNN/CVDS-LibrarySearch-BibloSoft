@@ -1,3 +1,5 @@
+import type { StudentSchema } from '@database/students/students.schema';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { Request } from 'express';
 
 /**
@@ -55,3 +57,8 @@ export type Session = JwtPayload & {
  * Represents a request with a session.
  */
 export type RequestWithSession = Request & { session: Session };
+
+/**
+ * Represents the students database;
+ */
+export type StudentsDatabase = PostgresJsDatabase<typeof StudentSchema>;

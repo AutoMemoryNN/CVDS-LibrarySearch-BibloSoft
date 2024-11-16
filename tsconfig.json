@@ -21,6 +21,7 @@
 			"@app/*": ["src/app/*"],
 			"@health/*": ["src/health/*"],
 			"@auth/*": ["src/auth/*"],
+			"@database/*": ["src/database/*"],
 			"@types": ["src/types"]
 		}
 	},

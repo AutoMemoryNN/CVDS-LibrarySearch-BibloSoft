@@ -7,6 +7,14 @@ import type { JwtModuleOptions } from '@nestjs/jwt';
  */
 interface AppOptions {
 	readonly jwt: Readonly<JwtModuleOptions>;
+	readonly tokens: Readonly<typeof Tokens>;
+}
+
+/**
+ * Application tokens used for dependency injection.
+ */
+enum Tokens {
+	STUDENTS_DATABASE = 'STUDENTS_DATABASE',
 }
 
 /**
@@ -27,4 +35,5 @@ const jwt: Readonly<JwtModuleOptions> = {
  */
 export const AppConfig: Readonly<AppOptions> = {
 	jwt,
+	tokens: Tokens,
 };
