@@ -38,7 +38,8 @@ export class AuthService {
 		}
 
 		const payload = {
-			username: credentials.username,
+			username: user.username,
+			role: user.role,
 		};
 
 		const token = this.signSession(payload);
