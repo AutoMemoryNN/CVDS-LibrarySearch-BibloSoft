@@ -30,24 +30,6 @@ describe('HealthController', () => {
 	});
 
 	/**
-	 * Test the HealthController#getHealth method
-	 */
-	describe('getHealth', () => {
-		/**
-		 * Test if the getHealth method returns the correct message
-		 */
-		it('should return "Server is up and running"', async () => {
-			const expectedBody = { message: 'Server is up and running' };
-
-			await spec()
-				.get(`${endpoint}/health`)
-				.expectResponseTime(timeLimit)
-				.expectJson(expectedBody)
-				.expectStatus(200);
-		});
-	});
-
-	/**
 	 * Test the HealthController#getPing method
 	 */
 	describe('getPing', () => {

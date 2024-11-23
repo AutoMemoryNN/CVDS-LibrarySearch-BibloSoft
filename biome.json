@@ -21,6 +21,9 @@
 			"quoteStyle": "single",
 			"jsxQuoteStyle": "single",
 			"semicolons": "always"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
 		}
 	},
 	"json": {
@@ -39,14 +42,20 @@
 				"noMultipleSpacesInRegularExpressionLiterals": "error",
 				"noUselessCatch": "error",
 				"noWith": "error",
-				"noUselessFragments": "error"
+				"noUselessFragments": "error",
+				"noStaticOnlyClass": "off"
 			},
 			"style": {
 				"useSelfClosingElements": "error",
 				"noImplicitBoolean": "error",
 				"useConsistentArrayType": "error",
 				"useBlockStatements": "error",
-				"useNamingConvention": "error",
+				"useNamingConvention": {
+					"level": "error",
+					"options": {
+						"enumMemberCase": "CONSTANT_CASE"
+					}
+				},
 				"useImportType": "off"
 			},
 			"a11y": {

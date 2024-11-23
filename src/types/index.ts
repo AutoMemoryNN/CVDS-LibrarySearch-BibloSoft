@@ -1,3 +1,7 @@
+import type { UserSchema } from '@database/users/users.schema';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import type { Request } from 'express';
+
 /**
  * Represents a mapping of errors for each property of a given type `T`.
  * Each key corresponds to a property of `T`, and the value is a string
@@ -5,7 +9,7 @@
  *
  * @template T - The type whose properties are being mapped to error messages.
  */
-type Errors<T> = Record<keyof T, string>;
+export type Errors<T> = Partial<Record<keyof T, string>>;
 
 /**
  * Represents a successful response from an controller
@@ -28,40 +32,33 @@ type Errors<T> = Record<keyof T, string>;
  *   message: "Operation successful"
  * };
  */
-export type SuccessResponse<T = null> = T extends null
+export type ControllerResponse<T = null> = T extends null
 	? { message: string }
 	: { data: T; message?: string };
 
 /**
- * Represents a client error response from a controller
+ * Represents the payload of a JSON Web Token (JWT).
  *
- * @template T - The type of the errors.
- *
- * Contains a dictionary of errors where the key is the field name and the value is the error message.
+ * @property {string} username - The username of the user.
  */
-export interface ClientErrorResponse<T> {
-	errors: Errors<T>;
-	message?: string;
-}
+export type JwtPayload = {
+	username: string;
+};
 
 /**
- * Represents an error response from the server.
- *
- * Contains a message that describes the error.
+ * Represents a user session.
  */
-export interface ServerErrorResponse {
-	message: string;
-}
+export type Session = JwtPayload & {
+	iat: number;
+	exp: number;
+};
 
 /**
- * Represents the response from a controller, which can be either a success or an error response.
- *
- * @template S - The type of the success response data.
- * @template E - The type of the client error response data. Defaults to null.
- *
- * If `E` is null, the response can be either a `SuccessResponse<S>` or a `ServerErrorResponse`.
- * If `E` is not null, the response can be a `SuccessResponse<S>`, `ClientErrorResponse<E>`, or `ServerErrorResponse`.
+ * Represents a request with a session.
  */
-export type ControllerResponse<S = null, E = null> = E extends null
-	? SuccessResponse<S> | ServerErrorResponse
-	: SuccessResponse<S> | ClientErrorResponse<E> | ServerErrorResponse;
+export type RequestWithSession = Request & { session: Session };
+
+/**
+ * Represents the users database;
+ */
+export type UsersDatabase = PostgresJsDatabase<typeof UserSchema>;
