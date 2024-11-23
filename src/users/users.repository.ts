@@ -37,8 +37,8 @@ export class UserDrizzleRepository implements UserRepository {
 	async findById(id: string): Promise<UserSelect | null> {
 		const [user] = await this.database
 			.select()
-			.from(UserSchema.studentsTable)
-			.where(eq(UserSchema.studentsTable.id, Number(id))); //TODO: Change to string when database fix it
+			.from(UserSchema.usersTable)
+			.where(eq(UserSchema.usersTable.id, id)); //TODO: Change to string when database fix it
 
 		if (!user) {
 			return null;
@@ -50,8 +50,8 @@ export class UserDrizzleRepository implements UserRepository {
 	async findByUsername(username: string): Promise<UserSelect | null> {
 		const [user] = await this.database
 			.select()
-			.from(UserSchema.studentsTable)
-			.where(eq(UserSchema.studentsTable.username, username));
+			.from(UserSchema.usersTable)
+			.where(eq(UserSchema.usersTable.username, username));
 
 		if (!user) {
 			return null;
@@ -64,29 +64,21 @@ export class UserDrizzleRepository implements UserRepository {
 export class UserDemoRepository implements UserRepository {
 	users: UserSelect[] = [
 		{
-			id: 1,
-			idType: 'CC',
-			idNumber: '123456789',
+			id: '1',
 			username: 'demo',
 			password: 'demo',
-			name: 'Demo User',
-			courseId: 1,
-			responsibleDocument: '123456789',
+			role: 'user',
 		},
 		{
-			id: 2,
-			idType: 'CC',
-			idNumber: '987654321',
+			id: '2',
 			username: 'admin',
 			password: 'admin',
-			name: 'Admin User',
-			courseId: 1,
-			responsibleDocument: '987654321',
+			role: 'admin',
 		},
 	];
 
 	async findById(id: string): Promise<UserSelect | null> {
-		return this.users.find((user) => user.id === Number(id)) || null;
+		return this.users.find((user) => user.id === id) || null;
 	}
 
 	async findByUsername(username: string): Promise<UserSelect | null> {
