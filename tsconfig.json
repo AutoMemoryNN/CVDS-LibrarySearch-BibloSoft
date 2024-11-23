@@ -24,6 +24,7 @@
 			"@users/*": ["src/users/*"],
 			"@database/*": ["src/database/*"],
 			"@config/*": ["src/config/*"],
+			"@sessions/*": ["src/sessions/*"],
 			"@types": ["src/types"]
 		}
 	},
