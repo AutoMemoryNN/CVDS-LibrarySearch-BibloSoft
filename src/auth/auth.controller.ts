@@ -9,10 +9,10 @@ export class AuthController {
 	constructor(private authService: AuthService) {}
 
 	@Post('login')
-	loginUser(
+	async loginUser(
 		@Body(LoginValidationPipe) credentials: LoginDto,
-	): ControllerResponse<string> {
-		const token = this.authService.loginUser(credentials);
+	): Promise<ControllerResponse<string>> {
+		const token = await this.authService.loginUser(credentials);
 
 		return { data: token };
 	}

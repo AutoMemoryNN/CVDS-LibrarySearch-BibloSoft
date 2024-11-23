@@ -4,20 +4,20 @@ import { AppException } from '@app/app.exceptions';
 import { HttpStatus } from '@nestjs/common';
 
 /**
- * Exception thrown when an invalid password is provided during authentication.
+ * Exception thrown when a user is not found.
  *
  * This exception extends the `AppException` class and is used to indicate
- * that the provided password does not meet the required criteria.
+ * that a user with the specified username does not exist in the system.
  *
  * @extends {AppException<LoginDto>}
  */
-export class InvalidPasswordException extends AppException<LoginDto> {
+export class UserNotFoundException extends AppException<LoginDto> {
 	constructor() {
 		super(
 			{
-				password: 'Invalid password',
+				username: 'Username not found',
 			},
-			HttpStatus.UNAUTHORIZED,
+			HttpStatus.NOT_FOUND,
 		);
 	}
 }

@@ -23,3 +23,9 @@ const studentsTable = pgTable('students', {
 export const UserSchema = {
 	studentsTable,
 } as const;
+
+/**
+ * Represents the type for selecting user data from the students table.
+ * This type is inferred from the schema definition of the students table.
+ */
+export type UserSelect = typeof UserSchema.studentsTable.$inferSelect;

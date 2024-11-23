@@ -1,31 +1,37 @@
 import type { JwtPayload, Session } from '@types';
 
 import { LoginDto } from '@auth/auth.dto';
-import {
-	InvalidPasswordException,
-	UserNotFoundException,
-} from '@auth/auth.exceptions';
+import { InvalidPasswordException } from '@auth/auth.exceptions';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserNotFoundException } from '@users/users.exceptions';
+import { UsersService } from '@users/users.service';
 
 @Injectable()
 export class AuthService {
-	constructor(private jwtService: JwtService) {}
+	constructor(
+		private readonly jwtService: JwtService,
+		private readonly usersService: UsersService,
+	) {}
 
 	/**
 	 * Authenticates a user based on provided credentials.
 	 *
-	 * @param {LoginDto} credentials - The login credentials containing username and password.
-	 * @returns {string} - A signed session token if authentication is successful.
-	 * @throws {UserNotFoundException} - If the username is not 'admin'.
-	 * @throws {InvalidPasswordException} - If the password is not 'admin'.
+	 * @param credentials - The login credentials containing username and password.
+	 * @returns A signed session token if authentication is successful.
+	 * @throws If the username is not 'admin'.
+	 * @throws If the password is not 'admin'.
 	 */
-	loginUser(credentials: LoginDto): string {
-		if (credentials.username !== 'admin') {
+	async loginUser(credentials: LoginDto): Promise<string> {
+		const user = await this.usersService.getUserByUsername(
+			credentials.username,
+		);
+
+		if (credentials.username !== user.username) {
 			throw new UserNotFoundException();
 		}
 
-		if (credentials.password !== 'admin') {
+		if (credentials.password !== user.password) {
 			throw new InvalidPasswordException();
 		}
 
