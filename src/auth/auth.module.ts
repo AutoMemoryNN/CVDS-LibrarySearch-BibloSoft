@@ -5,6 +5,7 @@ import { ConfigService } from '@config/config.service';
 import { Module } from '@nestjs/common';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { UsersModule } from '@users/users.module';
+import { SessionsModule } from 'src/sessions/sessions.module';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { UsersModule } from '@users/users.module';
 			}),
 		}),
 		UsersModule,
+		SessionsModule,
 	],
 	exports: [AuthService],
 	controllers: [AuthController],

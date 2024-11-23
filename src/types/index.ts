@@ -43,6 +43,7 @@ export type ControllerResponse<T = null> = T extends null
  */
 export type JwtPayload = {
 	username: string;
+	role: string;
 };
 
 /**

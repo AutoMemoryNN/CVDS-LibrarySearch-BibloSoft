@@ -4,6 +4,7 @@ import { LoginDto } from '@auth/auth.dto';
 import { InvalidPasswordException } from '@auth/auth.exceptions';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SessionManagerService } from '@sessions/sessions.service';
 import { UserNotFoundException } from '@users/users.exceptions';
 import { UsersService } from '@users/users.service';
 
@@ -12,6 +13,7 @@ export class AuthService {
 	constructor(
 		private readonly jwtService: JwtService,
 		private readonly usersService: UsersService,
+		private readonly sessionManager: SessionManagerService,
 	) {}
 
 	/**
@@ -36,10 +38,14 @@ export class AuthService {
 		}
 
 		const payload = {
-			username: credentials.username,
+			username: user.username,
+			role: user.role,
 		};
 
-		return this.signSession(payload);
+		const token = this.signSession(payload);
+		this.sessionManager.addSession(token);
+
+		return token;
 	}
 
 	/**
@@ -61,9 +67,45 @@ export class AuthService {
 	 */
 	decodeSession(token: string): Session {
 		try {
+			if (!this.sessionManager.hasSession(token)) {
+				throw new HttpException(
+					'Invalid token',
+					HttpStatus.UNAUTHORIZED,
+				);
+			}
+
 			return this.jwtService.verify(token);
 		} catch {
 			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
 		}
+	}
+
+	/**
+	 * Refreshes a session token by decoding the provided token and signing a new one.
+	 *
+	 * @param token - The JWT token to refresh.
+	 * @returns A new signed JWT token.
+	 * @throws HttpException - If the token is invalid or cannot be verified.
+	 */
+	refreshToken(token: string): string {
+		const { iat, exp, ...session } = this.decodeSession(token);
+		const newToken = this.signSession(session);
+
+		this.sessionManager.patchSession(token, newToken);
+
+		return newToken;
+	}
+
+	/**
+	 * Removes a session token from the session manager.
+	 *
+	 * @param token - The JWT token to remove.
+	 */
+	logoutUser(token: string): void {
+		if (!this.sessionManager.hasSession(token)) {
+			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+		}
+
+		this.sessionManager.removeSession(token);
 	}
 }
