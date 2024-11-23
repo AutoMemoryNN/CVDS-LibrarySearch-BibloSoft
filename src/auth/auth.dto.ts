@@ -1,5 +1,6 @@
 import { AppException } from '@app/app.exceptions';
 import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 import { z } from 'zod';
 
 /**
@@ -21,7 +22,30 @@ const loginSchema = z.object({
  *
  * This type is used to infer the type of the login schema.
  */
-export type LoginDto = z.infer<typeof loginSchema>;
+export class LoginDto {
+	@ApiProperty({
+		example: 'admin',
+		description: 'The username of the user',
+	})
+	username: string;
+
+	@ApiProperty({
+		example: 'admin',
+		description: 'The password of the user',
+	})
+	password: string;
+
+	constructor(data: unknown) {
+		const parsedData = loginSchema.safeParse(data);
+
+		if (!parsedData.success) {
+			throw AppException.fromZodError(parsedData.error);
+		}
+
+		this.username = parsedData.data.username;
+		this.password = parsedData.data.password;
+	}
+}
 
 /**
  * Pipe for validating login credentials.
