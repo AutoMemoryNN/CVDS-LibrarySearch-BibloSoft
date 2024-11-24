@@ -1,6 +1,6 @@
 import { AppTokens } from '@app/app.tokens';
 import { Inject, Injectable } from '@nestjs/common';
-import { SessionsManagerRepository } from './sessions.repository';
+import { SessionsManagerRepository } from '@sessions/sessions.repository';
 
 /**
  * Service for managing user sessions.

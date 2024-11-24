@@ -1,7 +1,7 @@
 import { AppTokens } from '@app/app.tokens';
 import { Module } from '@nestjs/common';
+import { MemorySessionManager } from '@sessions/sessions.repository';
 import { SessionManagerService } from '@sessions/sessions.service';
-import { MemorySessionManager } from './sessions.repository';
 
 @Module({
 	providers: [

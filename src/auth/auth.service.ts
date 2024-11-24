@@ -5,7 +5,7 @@ import { InvalidPasswordException } from '@auth/auth.exceptions';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SessionManagerService } from '@sessions/sessions.service';
-import { UserNotFoundException } from '@users/users.exceptions';
+import { UserUsernameNotFoundException } from '@users/users.exceptions';
 import { UsersService } from '@users/users.service';
 
 @Injectable()
@@ -30,7 +30,7 @@ export class AuthService {
 		);
 
 		if (credentials.username !== user.username) {
-			throw new UserNotFoundException();
+			throw new UserUsernameNotFoundException();
 		}
 
 		if (credentials.password !== user.password) {
@@ -40,6 +40,7 @@ export class AuthService {
 		const payload = {
 			username: user.username,
 			role: user.role,
+			id: user.id,
 		};
 
 		const token = this.signSession(payload);

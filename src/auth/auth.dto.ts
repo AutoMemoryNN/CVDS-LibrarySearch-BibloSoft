@@ -18,9 +18,15 @@ const loginSchema = z.object({
 });
 
 /**
- * Type of the login schema.
+ * Data Transfer Object (DTO) for user login.
  *
- * This type is used to infer the type of the login schema.
+ * @class
+ * @description This class represents the data required for a user to log in.
+ * It includes the username and password fields, both of which are decorated
+ * with `@ApiProperty` to provide metadata for API documentation.
+ *
+ * @property username - The username of the user.
+ * @property password - The password of the user.
  */
 export class LoginDto {
 	@ApiProperty({
@@ -59,7 +65,7 @@ export class LoginValidationPipe implements PipeTransform {
 		const result = loginSchema.safeParse(value);
 
 		if (result.success) {
-			return result.data;
+			return new LoginDto(result.data);
 		}
 
 		throw AppException.fromZodError(result.error);
