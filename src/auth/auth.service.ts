@@ -33,11 +33,16 @@ export class AuthService {
 			credentials.username,
 		);
 
-		if (credentials.username !== user.username) {
+		if (!user || credentials.username !== user.username) {
 			throw new UserUsernameNotFoundException();
 		}
 
-		if (credentials.password !== user.password) {
+		const isPasswordValid = await this.usersService.verifyPassword(
+			credentials.password,
+			user.password,
+		);
+
+		if (!isPasswordValid) {
 			throw new InvalidPasswordException();
 		}
 

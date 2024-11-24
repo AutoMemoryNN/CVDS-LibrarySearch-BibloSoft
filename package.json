@@ -27,6 +27,7 @@
 		"@nestjs/jwt": "10.2.0",
 		"@nestjs/platform-express": "10.4.7",
 		"@nestjs/swagger": "8.0.7",
+		"@node-rs/argon2": "2.0.0",
 		"dotenv": "16.4.5",
 		"drizzle-orm": "0.36.3",
 		"postgres": "3.4.5",

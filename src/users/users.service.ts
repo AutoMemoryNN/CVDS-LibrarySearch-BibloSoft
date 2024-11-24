@@ -9,6 +9,7 @@ import {
 	UserUpdate,
 } from '@database/users/users.schema';
 import { Inject, Injectable } from '@nestjs/common';
+import { hash, verify } from '@node-rs/argon2';
 import {
 	InsufficientPermissionsException,
 	UserConflictException,
@@ -76,6 +77,8 @@ export class UsersService {
 			throw new UserConflictException();
 		}
 
+		user.password = await this.hashPassword(user.password);
+
 		const { password, ...publicUser } =
 			await this.userRepository.createUser(user);
 
@@ -92,6 +95,10 @@ export class UsersService {
 	async updateUser(user: UserUpdate, session: Session): Promise<PublicUser> {
 		if (!this.hasPermissions(user.id, session)) {
 			throw new InsufficientPermissionsException();
+		}
+
+		if (user.password) {
+			user.password = await this.hashPassword(user.password);
 		}
 
 		const updatedUser = await this.userRepository.updateUser(user);
@@ -153,9 +160,33 @@ export class UsersService {
 	 *
 	 * @param userId - The ID of the user to check permissions for.
 	 * @param session - The session object containing user information.
+	 *
 	 * @returns `true` if the user has permissions, `false` otherwise.
 	 */
 	private hasPermissions(userId: string, session: Session): boolean {
 		return session.id === userId || session.role === UserRole.ADMIN;
+	}
+
+	/**
+	 * Hashes the provided password using Argon2.
+	 *
+	 * @param password - The password to hash.
+	 *
+	 * @returns A promise that resolves to the hashed password.
+	 */
+	async hashPassword(password: string): Promise<string> {
+		return await hash(password);
+	}
+
+	/**
+	 * Verifies the provided password against the provided hash.
+	 *
+	 * @param password - The password to verify.
+	 * @param hash - The hash to verify against.
+	 *
+	 * @returns A promise that resolves to `true` if the password is verified, `false` otherwise.
+	 */
+	async verifyPassword(password: string, hash: string): Promise<boolean> {
+		return await verify(hash, password);
 	}
 }
