@@ -1,11 +1,15 @@
 import type { JwtPayload, Session } from '@types';
 
 import { LoginDto } from '@auth/auth.dto';
-import { InvalidPasswordException } from '@auth/auth.exceptions';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+	InvalidPasswordException,
+	InvalidTokenException,
+	SessionNotFoundException,
+} from '@auth/auth.exceptions';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SessionManagerService } from '@sessions/sessions.service';
-import { UserNotFoundException } from '@users/users.exceptions';
+import { UserUsernameNotFoundException } from '@users/users.exceptions';
 import { UsersService } from '@users/users.service';
 
 @Injectable()
@@ -29,17 +33,23 @@ export class AuthService {
 			credentials.username,
 		);
 
-		if (credentials.username !== user.username) {
-			throw new UserNotFoundException();
+		if (!user || credentials.username !== user.username) {
+			throw new UserUsernameNotFoundException();
 		}
 
-		if (credentials.password !== user.password) {
+		const isPasswordValid = await this.usersService.verifyPassword(
+			credentials.password,
+			user.password,
+		);
+
+		if (!isPasswordValid) {
 			throw new InvalidPasswordException();
 		}
 
 		const payload = {
 			username: user.username,
 			role: user.role,
+			id: user.id,
 		};
 
 		const token = this.signSession(payload);
@@ -68,15 +78,12 @@ export class AuthService {
 	decodeSession(token: string): Session {
 		try {
 			if (!this.sessionManager.hasSession(token)) {
-				throw new HttpException(
-					'Invalid token',
-					HttpStatus.UNAUTHORIZED,
-				);
+				throw new SessionNotFoundException();
 			}
 
 			return this.jwtService.verify(token);
 		} catch {
-			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+			throw new InvalidTokenException();
 		}
 	}
 
@@ -103,7 +110,7 @@ export class AuthService {
 	 */
 	logoutUser(token: string): void {
 		if (!this.sessionManager.hasSession(token)) {
-			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+			throw new SessionNotFoundException();
 		}
 
 		this.sessionManager.removeSession(token);

@@ -13,7 +13,7 @@ import { createParamDecorator } from '@nestjs/common';
  * @param context - The execution context which provides access to the request object.
  * @returns The session object if it exists, otherwise null.
  */
-export const Session = createParamDecorator(
+export const SessionData = createParamDecorator(
 	(_data: unknown, context: ExecutionContext) => {
 		const request = context.switchToHttp().getRequest<RequestWithSession>();
 

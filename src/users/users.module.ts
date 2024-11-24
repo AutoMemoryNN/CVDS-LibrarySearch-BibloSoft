@@ -1,6 +1,7 @@
 import { AppTokens } from '@app/app.tokens';
 import { Module } from '@nestjs/common';
-import { UserDemoRepository } from '@users/users.repository';
+import { UsersController } from '@users/users.controller';
+import { UserMemoryRepository } from '@users/users.repository';
 import { UsersService } from '@users/users.service';
 
 @Module({
@@ -8,9 +9,10 @@ import { UsersService } from '@users/users.service';
 		UsersService,
 		{
 			provide: AppTokens.USER_REPOSITORY,
-			useClass: UserDemoRepository,
+			useClass: UserMemoryRepository,
 		},
 	],
+	controllers: [UsersController],
 	exports: [UsersService],
 })
 export class UsersModule {}
