@@ -34,7 +34,11 @@ export class UsersController {
 	@ApiOperation({ summary: 'Update a user' })
 	@ApiResponse({ status: 200, description: 'The updated user' })
 	@ApiResponse({ status: 400, description: 'Invalid request data' })
-	@ApiResponse({ status: 404, description: 'User not found' })
+	@ApiResponse({ status: 401, description: 'Not enough permissions' })
+	@ApiResponse({
+		status: 403,
+		description: 'User does not have enough permissions',
+	})
 	@ApiResponse({ status: 409, description: 'User already exists' })
 	async updateUser(
 		@Body(UpdateUserValidationPipe) user: UpdateUserDto,
@@ -48,6 +52,7 @@ export class UsersController {
 	@Delete('/:id')
 	@ApiOperation({ summary: 'Delete a user' })
 	@ApiResponse({ status: 200, description: 'The deleted user' })
+	@ApiResponse({ status: 401, description: 'Not enough permissions' })
 	@ApiResponse({ status: 404, description: 'User not found' })
 	async deleteUser(
 		@Param('id') id: string,

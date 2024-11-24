@@ -156,10 +156,6 @@ export class UsersService {
 	 * @returns `true` if the user has permissions, `false` otherwise.
 	 */
 	private hasPermissions(userId: string, session: Session): boolean {
-		if (!session) {
-			return false;
-		}
-
 		return session.id === userId || session.role === UserRole.ADMIN;
 	}
 }

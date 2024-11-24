@@ -11,8 +11,8 @@ import { z } from 'zod';
  * The `role` field must be a valid value from the `UserRole` enum.
  */
 export const newUserSchema = z.object({
-	username: z.string().max(50),
-	password: z.string().max(50),
+	username: z.string().max(50).min(1),
+	password: z.string().max(50).min(1),
 	role: z.nativeEnum(UserRole),
 });
 
