@@ -1,12 +1,16 @@
+import type { Session } from '@types';
+
 import { AppTokens } from '@app/app.tokens';
 import {
 	PublicUser,
 	UserInsert,
+	UserRole,
 	UserSelect,
 	UserUpdate,
 } from '@database/users/users.schema';
 import { Inject, Injectable } from '@nestjs/common';
 import {
+	InsufficientPermissionsException,
 	UserConflictException,
 	UserIdNotFoundException,
 	UserUsernameNotFoundException,
@@ -83,9 +87,13 @@ export class UsersService {
 	 *
 	 * @param user - The user information to update.
 	 * @returns A promise that resolves to the updated public user information.
-	 * @throws If the user to update is not found.
+	 * @throws If the user to update is not found or the user does not have the necessary permissions.
 	 */
-	async updateUser(user: UserUpdate): Promise<PublicUser> {
+	async updateUser(user: UserUpdate, session: Session): Promise<PublicUser> {
+		if (!this.hasPermissions(user.id, session)) {
+			throw new InsufficientPermissionsException();
+		}
+
 		const updatedUser = await this.userRepository.updateUser(user);
 
 		if (!updatedUser) {
@@ -102,9 +110,13 @@ export class UsersService {
 	 *
 	 * @param id - The ID of the user to delete.
 	 * @returns A promise that resolves to the public user data of the deleted user.
-	 * @throws If the user with the specified ID is not found.
+	 * @throws If the user with the specified ID is not found or the user does not have the necessary permissions.
 	 */
-	async deleteUser(id: string): Promise<PublicUser> {
+	async deleteUser(id: string, session: Session): Promise<PublicUser> {
+		if (!this.hasPermissions(id, session)) {
+			throw new InsufficientPermissionsException();
+		}
+
 		const deletedUser = await this.userRepository.deleteUser(id);
 
 		if (!deletedUser) {
@@ -134,5 +146,20 @@ export class UsersService {
 		);
 
 		return existingUser;
+	}
+
+	/**
+	 * Checks if the user has the necessary permissions based on their session.
+	 *
+	 * @param userId - The ID of the user to check permissions for.
+	 * @param session - The session object containing user information.
+	 * @returns `true` if the user has permissions, `false` otherwise.
+	 */
+	private hasPermissions(userId: string, session: Session): boolean {
+		if (!session) {
+			return false;
+		}
+
+		return session.id === userId || session.role === UserRole.ADMIN;
 	}
 }

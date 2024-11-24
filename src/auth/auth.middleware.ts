@@ -2,12 +2,14 @@ import type { NestMiddleware } from '@nestjs/common';
 import type { RequestWithSession } from '@types';
 import type { NextFunction, Response } from 'express';
 
+import { InvalidTokenException } from '@auth/auth.exceptions';
 import { AuthService } from '@auth/auth.service';
-import { HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Middleware to handle authentication using bearer tokens.
  */
+@Injectable()
 export class AuthMiddleware implements NestMiddleware {
 	constructor(private authService: AuthService) {}
 
@@ -29,7 +31,7 @@ export class AuthMiddleware implements NestMiddleware {
 		const authorization = request.headers.authorization;
 
 		if (!authorization || !authorization.startsWith('Bearer ')) {
-			throw new HttpException('Unauthorized', 401);
+			throw new InvalidTokenException();
 		}
 
 		const token = authorization.split(' ')[1];

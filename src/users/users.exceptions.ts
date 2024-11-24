@@ -1,7 +1,7 @@
 import { AppException } from '@app/app.exceptions';
 import { UserSelect } from '@database/users/users.schema';
-import { HttpStatus } from '@nestjs/common';
-import { NewUserDto } from './users.dto';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { NewUserDto } from '@users/users.dto';
 
 /**
  * Exception thrown when a user is not found.
@@ -57,5 +57,19 @@ export class UserConflictException extends AppException<NewUserDto> {
 			},
 			HttpStatus.CONFLICT,
 		);
+	}
+}
+
+/**
+ * Exception thrown when a user has insufficient permissions to perform an action.
+ *
+ * This exception extends the `HttpException` class and is used to indicate
+ * that the user does not have sufficient permissions to perform an action.
+ *
+ * @extends {HttpException}
+ */
+export class InsufficientPermissionsException extends HttpException {
+	constructor() {
+		super('Insufficient permissions', HttpStatus.FORBIDDEN);
 	}
 }

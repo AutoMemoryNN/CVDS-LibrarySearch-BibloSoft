@@ -1,6 +1,7 @@
 import { AppException } from '@app/app.exceptions';
 import { UserRole } from '@database/users/users.schema';
 import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 import { z } from 'zod';
 
 /**
@@ -44,8 +45,22 @@ export const updateUserSchema = z.object({
  * @throws Throws an exception if the input data is invalid according to the schema.
  */
 export class NewUserDto {
+	@ApiProperty({
+		example: 'cvds',
+		description: 'The username of the user',
+	})
 	username: string;
+
+	@ApiProperty({
+		example: 'password',
+		description: 'The password of the user',
+	})
 	password: string;
+
+	@ApiProperty({
+		example: 'admin',
+		description: 'The role of the user',
+	})
 	role: UserRole;
 
 	constructor(data: unknown) {
@@ -77,9 +92,28 @@ export class NewUserDto {
  * @throws Throws an exception if the input data is invalid according to the schema.
  */
 export class UpdateUserDto {
+	@ApiProperty({
+		example: '1',
+		description: 'The unique identifier of the user',
+	})
 	id: string;
+
+	@ApiProperty({
+		example: 'cvds',
+		description: 'The username of the user',
+	})
 	username?: string;
+
+	@ApiProperty({
+		example: 'password',
+		description: 'The password of the user',
+	})
 	password?: string;
+
+	@ApiProperty({
+		example: 'admin',
+		description: 'The role of the user',
+	})
 	role?: UserRole;
 
 	constructor(data: unknown) {

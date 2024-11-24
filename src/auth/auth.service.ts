@@ -1,8 +1,12 @@
 import type { JwtPayload, Session } from '@types';
 
 import { LoginDto } from '@auth/auth.dto';
-import { InvalidPasswordException } from '@auth/auth.exceptions';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+	InvalidPasswordException,
+	InvalidTokenException,
+	SessionNotFoundException,
+} from '@auth/auth.exceptions';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SessionManagerService } from '@sessions/sessions.service';
 import { UserUsernameNotFoundException } from '@users/users.exceptions';
@@ -69,15 +73,12 @@ export class AuthService {
 	decodeSession(token: string): Session {
 		try {
 			if (!this.sessionManager.hasSession(token)) {
-				throw new HttpException(
-					'Invalid token',
-					HttpStatus.UNAUTHORIZED,
-				);
+				throw new SessionNotFoundException();
 			}
 
 			return this.jwtService.verify(token);
 		} catch {
-			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+			throw new InvalidTokenException();
 		}
 	}
 
@@ -104,7 +105,7 @@ export class AuthService {
 	 */
 	logoutUser(token: string): void {
 		if (!this.sessionManager.hasSession(token)) {
-			throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+			throw new SessionNotFoundException();
 		}
 
 		this.sessionManager.removeSession(token);
