@@ -2,7 +2,6 @@
 
 Welcome to the **Authentication Microservice** of our CVDS (Ciclos de Vida del Desarrollo de Software) project! This service provides secure authentication and user management functionalities, acting as a cornerstone for our system's user interaction and data security. 🚀
 
-
 ## ✨ Description
 This microservice handles:
 - **User Authentication**: Login, logout, and session management using JWT tokens.
@@ -11,13 +10,11 @@ This microservice handles:
 
 Built with a modern tech stack to ensure reliability, scalability, and ease of maintenance.
 
-
 ## 👤 Dev Team
-- **Tomás Felipe Panqueva**
+- **Tomas Felipe Panqueva**
 - **Juan Pablo Camargo**
-- **Esteban**
-- **Sebastian**
-
+- **Juan Sebastian Buitrago Piñeros**
+- **Juan Esteban Medina Rivas**
 
 ## 🛠️ Tech Stack
 - **Language**: [Node.js](https://nodejs.org/)  
@@ -37,8 +34,6 @@ Additionally, when running the project, you can explore the following Swagger re
 - **Interactive Swagger UI**: Navigate to [`localhost:<PORT>/api`](http://localhost:<PORT>/api).  
 - **Swagger JSON**: Access the raw Swagger JSON at [`localhost:<PORT>/api-json`](http://localhost:<PORT>/api-json).  
 - **Swagger YAML**: Access the raw Swagger YAML at [`localhost:<PORT>/api-yml`](http://localhost:<PORT>/api-yml).  
-
-
 
 ## 🖥️ Development Environment
 To set up and run this microservice locally:
@@ -65,19 +60,15 @@ To set up and run this microservice locally:
 
 That's it! The microservice should now be running on `http://localhost:<PORT>`.
 
-
 ## 🔒 Contribution
 This repository is **private**. Contributions are restricted to group members.  
 External pull requests will not be accepted.  
 
-
 ## 📋 Issues
 All pertinent issues must be logged directly in the **GitHub Issues** section of this repository. Please ensure detailed descriptions and appropriate labels when creating an issue.  
 
-
 ## 💡 Notes
 - Always ensure your `.env` file is updated before running the service.  
-- Check the tech stack documentation for additional insights or troubleshooting tips.  
+- Check the tech stack documentation for additional insights or troubleshooting tips.
 
-
-Thank you for using and supporting this microservice! 🛡️ 
+Thank you for using and supporting this microservice! 🛡️
