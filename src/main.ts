@@ -16,7 +16,6 @@ async function bootstrap(): Promise<void> {
 		.addBearerAuth({
 			type: 'http',
 			scheme: 'bearer',
-			name: 'Authorization',
 			bearerFormat: 'Bearer <token>',
 		})
 		.build();
