@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: .docker/dockerfile
+    container_name: cvds-api
+    image: cvds-api
+    ports:
+      - "3000:3000"
+    networks:
+      - cvds-api-network
+    volumes:
+      - cvds-api-volume:/app
+networks:
+  cvds-api-network:
+
+volumes:
+  cvds-api-volume:
