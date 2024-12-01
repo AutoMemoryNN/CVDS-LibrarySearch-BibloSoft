@@ -13,7 +13,7 @@
 		"docker:stop": "docker compose -f .docker/docker-compose.yml down --volumes",
 		"format": "biome format --write .",
 		"prepare": "husky",
-		"start": "nest start",
+		"start": "node dist/main",
 		"start:dev": "nest start --watch",
 		"start:debug": "nest start --debug --watch",
 		"start:prod": "node dist/main",
