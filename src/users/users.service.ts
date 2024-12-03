@@ -48,15 +48,26 @@ export class UsersService implements OnModuleInit {
 			'SUPER_ADMIN_PASSWORD',
 		);
 
+		const temporalSession: Session = {
+			id: '',
+			role: UserRole.ADMIN,
+			username: adminUsername,
+			iat: 0,
+			exp: 0,
+		};
+
 		const adminUser =
 			await this.userRepository.findByUsername(adminUsername);
 
 		if (!adminUser) {
-			await this.createUser({
-				username: adminUsername,
-				password: adminPassword,
-				role: UserRole.ADMIN,
-			});
+			await this.createUser(
+				{
+					username: adminUsername,
+					password: adminPassword,
+					role: UserRole.ADMIN,
+				},
+				temporalSession,
+			);
 			this.logger.log(
 				`Created super admin user with username '${adminUsername}'`,
 			);
@@ -108,7 +119,11 @@ export class UsersService implements OnModuleInit {
 	 * @returns A promise that resolves to the public user data without the password.
 	 * @throws UserConflictException - If a user with conflicting data already exists.
 	 */
-	async createUser(user: UserInsert): Promise<PublicUser> {
+	async createUser(user: UserInsert, session: Session): Promise<PublicUser> {
+		if (!this.hasPermissions(undefined, session)) {
+			throw new InsufficientPermissionsException();
+		}
+
 		const existingUser = await this.getUserInConflict(user);
 
 		if (existingUser) {
@@ -201,7 +216,10 @@ export class UsersService implements OnModuleInit {
 	 *
 	 * @returns `true` if the user has permissions, `false` otherwise.
 	 */
-	private hasPermissions(userId: string, session: Session): boolean {
+	private hasPermissions(
+		userId: string | undefined,
+		session: Session,
+	): boolean {
 		return session.id === userId || session.role === UserRole.ADMIN;
 	}
 
