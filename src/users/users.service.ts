@@ -124,8 +124,6 @@ export class UsersService implements OnModuleInit {
 			throw new InsufficientPermissionsException();
 		}
 
-		this.logger.log(`User session: ${JSON.stringify(session)}`);
-
 		const existingUser = await this.getUserInConflict(user);
 
 		if (existingUser) {

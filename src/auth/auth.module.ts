@@ -5,8 +5,8 @@ import { ConfigModule } from '@config/config.module';
 import { ConfigService } from '@config/config.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
+import { SessionsModule } from '@sessions/sessions.module';
 import { UsersModule } from '@users/users.module';
-import { SessionsModule } from 'src/sessions/sessions.module';
 
 @Module({
 	imports: [
