@@ -1,12 +1,14 @@
 import { config } from 'dotenv';
-config({ override: false });
+import { expand } from 'dotenv-expand';
+
+expand(config({ override: false }));
 
 import { AppModule } from '@app/app.module';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap(): Promise<void> {
-	const app = await NestFactory.create(AppModule);
+	const app = await NestFactory.create(AppModule, { cors: true });
 
 	const config = new DocumentBuilder()
 		.setTitle('Auth service')

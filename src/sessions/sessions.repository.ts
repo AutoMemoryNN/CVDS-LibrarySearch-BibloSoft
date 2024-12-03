@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import type { Session } from '@types';
+
+import { Injectable, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 /**
  * Interface representing a repository for managing sessions.
@@ -29,6 +33,11 @@ export interface SessionsManagerRepository {
 	 * @param token - The token of the session to be removed.
 	 */
 	removeSession(token: string): void;
+
+	/**
+	 * Cleans up any expired sessions.
+	 */
+	cleanupSessions(): void;
 }
 
 /**
@@ -36,10 +45,11 @@ export interface SessionsManagerRepository {
  */
 @Injectable()
 export class MemorySessionManager implements SessionsManagerRepository {
-	sessions: Set<string>;
+	private readonly sessions: Map<string, number>;
+	private readonly logger = new Logger(MemorySessionManager.name);
 
-	constructor() {
-		this.sessions = new Set();
+	constructor(private readonly jwtService: JwtService) {
+		this.sessions = new Map();
 	}
 
 	hasSession(token: string): boolean {
@@ -47,15 +57,53 @@ export class MemorySessionManager implements SessionsManagerRepository {
 	}
 
 	addSession(token: string): void {
-		this.sessions.add(token);
+		try {
+			const decoded = this.jwtService.decode(token) as Session;
+			this.sessions.set(token, decoded.exp);
+		} catch (_error) {
+			this.logger.error(`Failed to add session for token: ${token}`);
+		}
 	}
 
 	patchSession(oldToken: string, newToken: string): void {
-		this.sessions.delete(oldToken);
-		this.sessions.add(newToken);
+		try {
+			const decoded = this.jwtService.decode(newToken) as Session;
+			this.sessions.delete(oldToken);
+			this.sessions.set(newToken, decoded.exp);
+		} catch (_error) {
+			this.logger.error(
+				`Failed to update session for token: ${oldToken}`,
+			);
+			this.sessions.delete(oldToken);
+		}
 	}
 
 	removeSession(token: string): void {
 		this.sessions.delete(token);
+	}
+
+	@Cron(CronExpression.EVERY_3_HOURS)
+	cleanupSessions(): void {
+		const prevLength = this.sessions.size;
+		const now = Math.ceil(Date.now() / 1000);
+
+		for (const [token, exp] of this.sessions.entries()) {
+			try {
+				if (exp < now) {
+					this.sessions.delete(token);
+				}
+			} catch (_error) {
+				this.logger.error(
+					`Failed to cleanup session for token: ${token}`,
+				);
+				this.sessions.delete(token);
+			}
+		}
+
+		const newLength = this.sessions.size;
+
+		this.logger.log(
+			`Cleaned up ${prevLength - newLength} expired sessions`,
+		);
 	}
 }

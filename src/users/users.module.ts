@@ -1,7 +1,7 @@
 import { AppTokens } from '@app/app.tokens';
 import { Module } from '@nestjs/common';
 import { UsersController } from '@users/users.controller';
-import { UserMemoryRepository } from '@users/users.repository';
+import { UserPostgresRepository } from '@users/users.repository';
 import { UsersService } from '@users/users.service';
 
 @Module({
@@ -9,7 +9,7 @@ import { UsersService } from '@users/users.service';
 		UsersService,
 		{
 			provide: AppTokens.USER_REPOSITORY,
-			useClass: UserMemoryRepository,
+			useClass: UserPostgresRepository,
 		},
 	],
 	controllers: [UsersController],

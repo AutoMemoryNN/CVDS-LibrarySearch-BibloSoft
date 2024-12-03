@@ -27,8 +27,10 @@ describe('UsersController', () => {
 
 	const buildAdmin = (): UserInsert => {
 		return {
-			username: `user-${Math.random()}`,
-			password: `password-${Math.random()}`,
+			username:
+				process.env.SUPER_ADMIN_USERNAME || `user-${Math.random()}`,
+			password:
+				process.env.SUPER_ADMIN_PASSWORD || `password-${Math.random()}`,
 			role: UserRole.ADMIN,
 		};
 	};
@@ -40,7 +42,7 @@ describe('UsersController', () => {
 		const module: TestingModule = await Test.createTestingModule({
 			imports: [AppModule],
 		})
-			.overrideProvider(AppTokens.USERS_DATABASE)
+			.overrideProvider(AppTokens.USER_REPOSITORY)
 			.useValue(new UserMemoryRepository())
 			.compile();
 
@@ -48,12 +50,6 @@ describe('UsersController', () => {
 
 		await app.init();
 		await app.listen(port);
-
-		await spec()
-			.post(`${endpoint}/users`)
-			.withBody(testAdmin)
-			.expectResponseTime(timeLimit)
-			.expectStatus(HttpStatus.CREATED);
 	});
 
 	afterAll(async () => {
@@ -85,6 +81,18 @@ describe('UsersController', () => {
 		});
 
 		it('should create a user', async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			const user = testUser;
 			const { password, ...createdUser } = user;
 			const expectedBody = {
@@ -94,6 +102,7 @@ describe('UsersController', () => {
 			const result = await spec()
 				.post(`${endpoint}/users`)
 				.withBody(user)
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.CREATED)
 				.expectJsonLike(expectedBody)
@@ -103,6 +112,18 @@ describe('UsersController', () => {
 		});
 
 		it('should return 400 if the username is empty', async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			const user = testUser;
 			const expectedBody = {
 				statusCode: 400,
@@ -114,12 +135,25 @@ describe('UsersController', () => {
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody({ ...user, username: '' })
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.BAD_REQUEST)
 				.expectJsonLike(expectedBody);
 		});
 
 		it('should return 400 if the password is empty', async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			const user = testUser;
 			const expectedBody = {
 				statusCode: 400,
@@ -131,12 +165,25 @@ describe('UsersController', () => {
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody({ ...user, password: '' })
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.BAD_REQUEST)
 				.expectJsonLike(expectedBody);
 		});
 
 		it('should return 400 if the role is invalid', async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			const invalidRole = 'invalid';
 			const user = testUser;
 			const expectedBody = {
@@ -149,12 +196,25 @@ describe('UsersController', () => {
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody({ ...user, role: 'invalid' })
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.BAD_REQUEST)
 				.expectJsonLike(expectedBody);
 		});
 
 		it('should return 409 if the user already exists', async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			const user = testUser;
 			const expectedBody = {
 				statusCode: 409,
@@ -166,6 +226,7 @@ describe('UsersController', () => {
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody(user)
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.CONFLICT)
 				.expectJsonLike(expectedBody);
@@ -177,9 +238,22 @@ describe('UsersController', () => {
 	 */
 	describe('updateUser', () => {
 		beforeAll(async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody(testUser)
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.CREATED)
 				.returns('data');
@@ -316,6 +390,7 @@ describe('UsersController', () => {
 
 		it('should return 200 if all fields are missing', async () => {
 			const user = testUser;
+
 			const userCredentials = {
 				username: user.username,
 				password: user.password,
@@ -343,9 +418,22 @@ describe('UsersController', () => {
 
 	describe('deleteUser', () => {
 		beforeAll(async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const token = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody(testUser)
+				.withBearerToken(token)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.CREATED)
 				.returns('data');
@@ -409,9 +497,22 @@ describe('UsersController', () => {
 		});
 
 		it('should return 403 if the user tries to delete another user', async () => {
+			const adminCredentials = {
+				username: testAdmin.username,
+				password: testAdmin.password,
+			};
+
+			const adminToken = await spec()
+				.post(`${endpoint}/auth/login`)
+				.withBody(adminCredentials)
+				.expectResponseTime(timeLimit)
+				.expectStatus(HttpStatus.CREATED)
+				.returns('data');
+
 			await spec()
 				.post(`${endpoint}/users`)
 				.withBody(testUser)
+				.withBearerToken(adminToken)
 				.expectResponseTime(timeLimit)
 				.expectStatus(HttpStatus.CREATED)
 				.returns('data');

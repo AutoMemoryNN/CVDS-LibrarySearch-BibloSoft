@@ -21,11 +21,13 @@ export class UsersController {
 	@ApiOperation({ summary: 'Create a new user' })
 	@ApiResponse({ status: 201, description: 'The new user' })
 	@ApiResponse({ status: 400, description: 'Invalid request data' })
+	@ApiResponse({ status: 403, description: 'Not enough permissions' })
 	@ApiResponse({ status: 409, description: 'User already exists' })
 	async createUser(
 		@Body(NewUserValidationPipe) user: NewUserDto,
+		@SessionData() session: Session,
 	): Promise<ControllerResponse<PublicUser>> {
-		const newUser = await this.userService.createUser(user);
+		const newUser = await this.userService.createUser(user, session);
 
 		return { data: newUser };
 	}
@@ -34,7 +36,7 @@ export class UsersController {
 	@ApiOperation({ summary: 'Update a user' })
 	@ApiResponse({ status: 200, description: 'The updated user' })
 	@ApiResponse({ status: 400, description: 'Invalid request data' })
-	@ApiResponse({ status: 401, description: 'Not enough permissions' })
+	@ApiResponse({ status: 403, description: 'Not enough permissions' })
 	@ApiResponse({
 		status: 403,
 		description: 'User does not have enough permissions',
@@ -52,7 +54,7 @@ export class UsersController {
 	@Delete('/:id')
 	@ApiOperation({ summary: 'Delete a user' })
 	@ApiResponse({ status: 200, description: 'The deleted user' })
-	@ApiResponse({ status: 401, description: 'Not enough permissions' })
+	@ApiResponse({ status: 403, description: 'Not enough permissions' })
 	@ApiResponse({ status: 404, description: 'User not found' })
 	async deleteUser(
 		@Param('id') id: string,

@@ -1,6 +1,7 @@
 import type { Session } from '@types';
 
 import { AppTokens } from '@app/app.tokens';
+import { ConfigService } from '@config/config.service';
 import {
 	PublicUser,
 	UserInsert,
@@ -8,7 +9,7 @@ import {
 	UserSelect,
 	UserUpdate,
 } from '@database/users/users.schema';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { hash, verify } from '@node-rs/argon2';
 import {
 	InsufficientPermissionsException,
@@ -19,11 +20,59 @@ import {
 import { UserRepository } from '@users/users.repository';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+	private readonly logger = new Logger(UsersService.name);
+
 	constructor(
 		@Inject(AppTokens.USER_REPOSITORY)
 		private readonly userRepository: UserRepository,
+		private readonly configService: ConfigService,
 	) {}
+
+	/**
+	 * Initializes the service.
+	 */
+	async onModuleInit(): Promise<void> {
+		await this.ensureAdminUserExists();
+	}
+
+	/**
+	 * Ensures that the super admin user exists in the system.
+	 * If the user does not exist, it is created using the provided environment variables.
+	 */
+	private async ensureAdminUserExists(): Promise<void> {
+		const adminUsername = this.configService.getStrictEnv(
+			'SUPER_ADMIN_USERNAME',
+		);
+		const adminPassword = this.configService.getStrictEnv(
+			'SUPER_ADMIN_PASSWORD',
+		);
+
+		const temporalSession: Session = {
+			id: '',
+			role: UserRole.ADMIN,
+			username: adminUsername,
+			iat: 0,
+			exp: 0,
+		};
+
+		const adminUser =
+			await this.userRepository.findByUsername(adminUsername);
+
+		if (!adminUser) {
+			await this.createUser(
+				{
+					username: adminUsername,
+					password: adminPassword,
+					role: UserRole.ADMIN,
+				},
+				temporalSession,
+			);
+			this.logger.log(
+				`Created super admin user with username '${adminUsername}'`,
+			);
+		}
+	}
 
 	/**
 	 * Retrieves a user by their ID.
@@ -70,7 +119,11 @@ export class UsersService {
 	 * @returns A promise that resolves to the public user data without the password.
 	 * @throws UserConflictException - If a user with conflicting data already exists.
 	 */
-	async createUser(user: UserInsert): Promise<PublicUser> {
+	async createUser(user: UserInsert, session: Session): Promise<PublicUser> {
+		if (!this.hasPermissions(undefined, session)) {
+			throw new InsufficientPermissionsException();
+		}
+
 		const existingUser = await this.getUserInConflict(user);
 
 		if (existingUser) {
@@ -163,8 +216,14 @@ export class UsersService {
 	 *
 	 * @returns `true` if the user has permissions, `false` otherwise.
 	 */
-	private hasPermissions(userId: string, session: Session): boolean {
-		return session.id === userId || session.role === UserRole.ADMIN;
+	private hasPermissions(
+		userId: string | undefined,
+		session: Session,
+	): boolean {
+		return (
+			session.role === UserRole.ADMIN ||
+			(userId !== undefined && session.id === userId)
+		);
 	}
 
 	/**
