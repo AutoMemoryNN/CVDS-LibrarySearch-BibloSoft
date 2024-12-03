@@ -1,5 +1,7 @@
 import { config } from 'dotenv';
-config({ override: false });
+import { expand } from 'dotenv-expand';
+
+expand(config({ override: false }));
 
 import { AppModule } from '@app/app.module';
 import { NestFactory } from '@nestjs/core';

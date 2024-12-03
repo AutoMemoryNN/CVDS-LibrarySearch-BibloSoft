@@ -58,3 +58,8 @@ export type UserUpdate = Pick<UserSelect, 'id'> &
  * This type is inferred from the schema definition of the users table.
  */
 export type UserInsert = typeof UserSchema.usersTable.$inferInsert;
+
+/**
+ * Exports used by drizzle-kit to generate the database schema.
+ */
+export { usersTable, userRoleEnum };

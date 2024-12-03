@@ -9,6 +9,7 @@ export class UserDatabaseConfig {
 	create(): DrizzlePostgresConfig {
 		return {
 			postgres: {
+				config: {},
 				url: process.env.DATABASE_URL || '',
 			},
 			config: { schema: { ...UserSchema } },
