@@ -124,6 +124,8 @@ export class UsersService implements OnModuleInit {
 			throw new InsufficientPermissionsException();
 		}
 
+		this.logger.log(`User session: ${JSON.stringify(session)}`);
+
 		const existingUser = await this.getUserInConflict(user);
 
 		if (existingUser) {
@@ -220,7 +222,10 @@ export class UsersService implements OnModuleInit {
 		userId: string | undefined,
 		session: Session,
 	): boolean {
-		return session.id === userId || session.role === UserRole.ADMIN;
+		return (
+			session.role === UserRole.ADMIN ||
+			(userId !== undefined && session.id === userId)
+		);
 	}
 
 	/**
