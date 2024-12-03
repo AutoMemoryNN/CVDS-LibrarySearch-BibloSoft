@@ -42,7 +42,7 @@ describe('UsersController', () => {
 		const module: TestingModule = await Test.createTestingModule({
 			imports: [AppModule],
 		})
-			.overrideProvider(AppTokens.USERS_DATABASE)
+			.overrideProvider(AppTokens.USER_REPOSITORY)
 			.useValue(new UserMemoryRepository())
 			.compile();
 

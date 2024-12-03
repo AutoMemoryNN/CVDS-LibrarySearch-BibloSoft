@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core';
 
 /**
  * Represents the possible roles that a user can have.
@@ -20,7 +20,7 @@ const userRoleEnum = pgEnum(
  * Represents the schema for the 'users' table in the database.
  **/
 const usersTable = pgTable('users', {
-	id: text('id').primaryKey().notNull().default('uuid_generate_v4()'),
+	id: uuid('id').primaryKey().notNull().defaultRandom(),
 	username: text('username').unique().notNull(),
 	password: text('password').notNull(),
 	role: userRoleEnum('role').$type<UserRole>().notNull(),
