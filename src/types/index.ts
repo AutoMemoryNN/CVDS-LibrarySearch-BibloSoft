@@ -1,4 +1,4 @@
-import type { UserSchema } from '@database/users/users.schema';
+import type { UserRole, UserSchema } from '@database/users/users.schema';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { Request } from 'express';
 
@@ -43,7 +43,7 @@ export type ControllerResponse<T = null> = T extends null
  */
 export type JwtPayload = {
 	username: string;
-	role: string;
+	role: UserRole;
 	id: string;
 };
 

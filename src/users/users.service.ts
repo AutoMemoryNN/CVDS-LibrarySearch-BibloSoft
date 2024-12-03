@@ -1,6 +1,7 @@
 import type { Session } from '@types';
 
 import { AppTokens } from '@app/app.tokens';
+import { ConfigService } from '@config/config.service';
 import {
 	PublicUser,
 	UserInsert,
@@ -8,7 +9,7 @@ import {
 	UserSelect,
 	UserUpdate,
 } from '@database/users/users.schema';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { hash, verify } from '@node-rs/argon2';
 import {
 	InsufficientPermissionsException,
@@ -19,11 +20,48 @@ import {
 import { UserRepository } from '@users/users.repository';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+	private readonly logger = new Logger(UsersService.name);
+
 	constructor(
 		@Inject(AppTokens.USER_REPOSITORY)
 		private readonly userRepository: UserRepository,
+		private readonly configService: ConfigService,
 	) {}
+
+	/**
+	 * Initializes the service.
+	 */
+	async onModuleInit(): Promise<void> {
+		await this.ensureAdminUserExists();
+	}
+
+	/**
+	 * Ensures that the super admin user exists in the system.
+	 * If the user does not exist, it is created using the provided environment variables.
+	 */
+	private async ensureAdminUserExists(): Promise<void> {
+		const adminUsername = this.configService.getStrictEnv(
+			'SUPER_ADMIN_USERNAME',
+		);
+		const adminPassword = this.configService.getStrictEnv(
+			'SUPER_ADMIN_PASSWORD',
+		);
+
+		const adminUser =
+			await this.userRepository.findByUsername(adminUsername);
+
+		if (!adminUser) {
+			await this.createUser({
+				username: adminUsername,
+				password: adminPassword,
+				role: UserRole.ADMIN,
+			});
+			this.logger.log(
+				`Created super admin user with username '${adminUsername}'`,
+			);
+		}
+	}
 
 	/**
 	 * Retrieves a user by their ID.

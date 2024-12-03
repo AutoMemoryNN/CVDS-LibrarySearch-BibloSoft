@@ -30,15 +30,26 @@ export class AuthMiddleware implements NestMiddleware {
 	): void {
 		const authorization = request.headers.authorization;
 
-		if (!authorization || !authorization.startsWith('Bearer ')) {
-			throw new InvalidTokenException();
-		}
-
-		const token = authorization.split(' ')[1];
+		const token = this.extractBearerToken(authorization);
 		const session = this.authService.decodeSession(token);
 
 		request.session = session;
 
 		next();
+	}
+
+	/**
+	 * Extracts the token from a Bearer authorization header.
+	 *
+	 * @param authorization - The authorization header string.
+	 * @returns The extracted token.
+	 * @throws InvalidTokenException if the authorization header is missing or does not start with 'Bearer '.
+	 */
+	private extractBearerToken(authorization?: string): string {
+		if (!authorization || !authorization.startsWith('Bearer ')) {
+			throw new InvalidTokenException();
+		}
+
+		return authorization.split(' ')[1];
 	}
 }
